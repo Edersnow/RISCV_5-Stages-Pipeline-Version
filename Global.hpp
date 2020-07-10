@@ -19,9 +19,20 @@ uint _register[32];
 uint target[32];
 bool is_end;
 
-//Two-level adaptive branch prediction algorithm    PAs
-uint BHT[64];              //6bits
-uint PHT[64][16];          //2bits
+//prediction part
+//BTFN
+uint app_time[64];
+uint total_app;
+
+//Global prediction
+uint BHR;                  //16bits
+uint PHT_for_BHR[65536];   //2bits
+
+//Local prediction
+uint BHT[64];              //8bits
+uint PHT[64][256];         //2bits
+
+
 
 //Statistics section
 uint total_prediction;

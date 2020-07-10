@@ -10,6 +10,11 @@ int main()
     uint memory_start;
     char _input[20];
 
+    for(int i=0;i<64;++i)
+        for(int j=0;j<16;++j)
+            PHT[i][j]=1;
+    for(int i=0;i<65536;++i)
+        PHT_for_BHR[i]=1;
 
     /*
     if(!freopen("testcases/array_test1.data", "r", stdin)){

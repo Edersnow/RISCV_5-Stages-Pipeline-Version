@@ -57,6 +57,7 @@ struct EX_register{
     uint hash_value;
 
     EX_register();
+    void judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID);
     void operate_EX(ID_register &cur_ID, IF_register &cur_IF);
 };
 
@@ -193,9 +194,13 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
 
 
 
-    //Two-level adaptive branch prediction
+    //banche predict(2-bit)
     if(cur_dins._format>=28 && cur_dins._format<=33){
-        if(PHT[hash_value][BHT[hash_value]]&2)
+        if(app_time[hash_value]==8 && (PHT[hash_value][BHT[hash_value]]&2))
+            _pc=cur_pc + cur_dins._immediate, is_banched=true;
+        else if(total_app==16 && PHT_for_BHR[BHR]==3)
+            _pc=cur_pc + cur_dins._immediate, is_banched=true;
+        else if(cur_dins._immediate<0)
             _pc=cur_pc + cur_dins._immediate, is_banched=true;
         ++total_prediction;
     }
@@ -219,6 +224,41 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
 /***                                                               ***/
 
 EX_register::EX_register() {is_empty=true;}
+
+void EX_register::judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID){
+    if(res){
+        if(app_time[hash_value]<8)  ++app_time[hash_value];
+        else  PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
+        if(total_app<16)  ++total_app;
+        else  PHT_for_BHR[BHR]=std::min(PHT_for_BHR[BHR]+1, 3u);
+
+        BHT[hash_value]=(BHT[hash_value]<<1)&255;
+        BHT[hash_value]|=1;
+        BHR=(BHR<<1)&65535;
+        BHR|=1;
+
+        if(cur_ID.is_banched)  ++correct_prediction;
+        else{
+            cur_IF.is_empty=true;
+            _pc=cur_pc+cur_imm;
+        }
+    }
+    else{
+        if(app_time[hash_value]<8)  ++app_time[hash_value];
+        else  PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
+        if(total_app<16)  ++total_app;
+        else  PHT_for_BHR[BHR]=std::max(PHT_for_BHR[BHR]-1, 0u);
+
+        BHT[hash_value]=(BHT[hash_value]<<1)&255;
+        BHR=(BHR<<1)&65535;
+
+        if(cur_ID.is_banched){
+            cur_IF.is_empty=true;
+            _pc=cur_pc+4;
+        }
+        else  ++correct_prediction;
+    }
+}
 
 void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
     cur_type=cur_ID.cur_dins._format;
@@ -257,137 +297,12 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
         case SRAI:  _vrd = int(_val1) >> (cur_imm&31); break;
 
         //PART SB
-        case BEQ:
-            if(_val1 == _val2){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
-
-        case BNE:
-            if(_val1 != _val2){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
-
-        case BLT:
-            if(int(_val1) < int(_val2)){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
-
-        case BGE:
-            if(int(_val1) >= int(_val2)){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
-
-        case BLTU:
-            if(_val1 < _val2){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
-
-        case BGEU:
-            if(_val1 >= _val2){
-                PHT[hash_value][BHT[hash_value]]=std::min(PHT[hash_value][BHT[hash_value]]+1, 3u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                BHT[hash_value]|=1;
-                if(cur_ID.is_banched)  ++correct_prediction;
-                else{
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+cur_imm;
-                }
-            }
-            else{
-                PHT[hash_value][BHT[hash_value]]=std::max(PHT[hash_value][BHT[hash_value]]-1, 0u);
-                BHT[hash_value]=(BHT[hash_value]<<1)&15;
-                if(cur_ID.is_banched){
-                    cur_IF.is_empty=true;
-                    _pc=cur_pc+4;
-                }
-                else  ++correct_prediction;
-            }
-            break;
+        case BEQ:  judge_SB(_val1 == _val2, cur_IF, cur_ID);  break;
+        case BNE:  judge_SB(_val1 != _val2, cur_IF, cur_ID);  break;
+        case BLT:  judge_SB(int(_val1) < int(_val2), cur_IF, cur_ID);  break;
+        case BGE:  judge_SB(int(_val1) >= int(_val2), cur_IF, cur_ID);  break;
+        case BLTU:  judge_SB(_val1 < _val2, cur_IF, cur_ID);  break;
+        case BGEU:  judge_SB(_val1 >= _val2, cur_IF, cur_ID);  break;
 
         //PART U
         case LUI:  _vrd = cur_imm; break;
