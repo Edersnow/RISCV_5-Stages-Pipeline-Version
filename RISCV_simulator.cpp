@@ -9,6 +9,8 @@ int main()
     uint cnt=1;
     uint memory_start;
     char _input[20];
+    for(int i=0; i<37; ++i)  _predictor[i]=1;
+
 
     /*
     if(!freopen("testcases/array_test1.data", "r", stdin)){
