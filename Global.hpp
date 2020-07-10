@@ -16,9 +16,12 @@ enum typeT{
 unsigned char _memory[10000000];
 uint _pc;
 uint _register[32];
-uint _predictor[64];    //a easy hashtable
 uint target[32];
 bool is_end;
+
+//Two-level adaptive branch prediction algorithm    PAs
+uint BHT[64];              //6bits
+uint PHT[64][16];          //2bits
 
 //Statistics section
 uint total_prediction;

@@ -10,8 +10,6 @@ int main()
     uint memory_start;
     char _input[20];
 
-    for(int i=0;i<64;++i)
-        _predictor[i]=1;
 
     /*
     if(!freopen("testcases/array_test1.data", "r", stdin)){
@@ -50,6 +48,7 @@ int main()
 
     //printf("Total prediction: %u\n", total_prediction);
     //printf("Correct prediction: %u\n", correct_prediction);
+    //printf("Prediction accuracy: %.2f%\n", (double(correct_prediction)/total_prediction)*100);
     //printf("Result: %u\n", _register[10]&255);
     printf("%u\n", _register[10]&255);
     return 0;
