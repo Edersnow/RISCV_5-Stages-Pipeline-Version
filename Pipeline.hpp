@@ -268,6 +268,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
@@ -286,6 +287,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
@@ -304,6 +306,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
@@ -322,6 +325,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
@@ -340,6 +344,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
@@ -358,6 +363,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
                 }
+                else  ++correct_prediction;
             }
             break;
 
