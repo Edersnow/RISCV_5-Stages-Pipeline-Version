@@ -192,7 +192,7 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
 
     //banche predict(2-bit)
     if(cur_dins._format>=28 && cur_dins._format<=33){
-        if(_predictor[cur_dins._format]>1)
+        if(_predictor[cur_dins._format-28][((cur_dins._immediate)>>1)&15]>1)
             _pc=cur_pc + cur_dins._immediate, is_banched=true;
         ++total_prediction;
     }
@@ -255,7 +255,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
         //PART SB
         case BEQ:
             if(_val1 == _val2){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -263,7 +263,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
@@ -273,7 +273,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         case BNE:
             if(_val1 != _val2){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -281,7 +281,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
@@ -291,7 +291,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         case BLT:
             if(int(_val1) < int(_val2)){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -299,7 +299,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
@@ -309,7 +309,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         case BGE:
             if(int(_val1) >= int(_val2)){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -317,7 +317,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
@@ -327,7 +327,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         case BLTU:
             if(_val1 < _val2){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -335,7 +335,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;
@@ -345,7 +345,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         case BGEU:
             if(_val1 >= _val2){
-                _predictor[cur_type]=std::min(_predictor[cur_type]+1, 3u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::min(_predictor[cur_type-28][((cur_imm)>>1)&15]+1, 3u);
                 if(cur_ID.is_banched)  ++correct_prediction;
                 else{
                     cur_IF.is_empty=true;
@@ -353,7 +353,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
                 }
             }
             else{
-                _predictor[cur_type]=std::max( _predictor[cur_type]-1, 0u);
+                _predictor[cur_type-28][((cur_imm)>>1)&15]=std::max(_predictor[cur_type-28][((cur_imm)>>1)&15]-1, 0u);
                 if(cur_ID.is_banched){
                     cur_IF.is_empty=true;
                     _pc=cur_pc+4;

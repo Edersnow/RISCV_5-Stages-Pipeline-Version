@@ -16,7 +16,7 @@ enum typeT{
 unsigned char _memory[10000000];
 uint _pc;
 uint _register[32];
-uint _predictor[37];
+uint _predictor[6][32];    //a easy hashtable
 uint target[32];
 bool is_end;
 
