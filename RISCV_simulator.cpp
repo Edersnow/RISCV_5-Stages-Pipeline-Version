@@ -10,6 +10,10 @@ int main()
     uint memory_start;
     char _input[20];
 
+    for(int i=0;i<6;++i)
+        for(int j=0;j<32;++j)
+            _predictor[i][j]=1;
+
     /*
     if(!freopen("testcases/array_test1.data", "r", stdin)){
         printf("Error in reading!\n");
