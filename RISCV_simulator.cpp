@@ -8,7 +8,6 @@ int main()
     MEM_register cur_MEM;
     uint cnt=1;
     uint memory_start;
-    uint tmp;
     char _input[20];
 
     /*

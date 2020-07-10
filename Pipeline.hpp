@@ -137,7 +137,7 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
         case LHU:  case ADDI:  case SLTI:  case SLTIU:  case XORI:
         case ORI:  case ANDI:  case SLLI:  case SRLI:  case SRAI:
             if(target[cur_dins._rs1]){
-                if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11)  return;
+                if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  return;
                 if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  _val1=cur_EX._vrd;
                 else  _val1=cur_MEM._vrd;
             }
@@ -151,12 +151,12 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
         case SB:  case SH:  case SW:  case BEQ:  case BNE:
         case BLT:  case BGE:  case BLTU:  case BGEU:
             if(target[cur_dins._rs1]){
-                if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11)  return;
+                if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  return;
                 if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  _val1=cur_EX._vrd;
                 else  _val1=cur_MEM._vrd;
 
                 if(target[cur_dins._rs2]){
-                    if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11)  return;
+                    if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  return;
                     if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  _val2=cur_EX._vrd;
                     else  _val2=cur_MEM._vrd;
                 }
@@ -166,7 +166,7 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
                 _val1=_register[cur_dins._rs1];
 
                 if(target[cur_dins._rs2]){
-                    if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11)  return;
+                    if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  return;
                     if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  _val2=cur_EX._vrd;
                     else  _val2=cur_MEM._vrd;
                 }
