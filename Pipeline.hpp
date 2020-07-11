@@ -70,6 +70,7 @@ struct EX_register{
 struct MEM_register{
 
     bool is_empty;
+    bool is_accessed;
     typeT cur_type;
     uint cur_imm;
     uint _val1;
@@ -142,7 +143,8 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
             if(target[cur_dins._rs1]){
                 if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  return;
                 if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  _val1=cur_EX._vrd;
-                else  _val1=cur_MEM._vrd;
+                else if(cur_MEM.is_accessed)  _val1=cur_MEM._vrd;
+                else  return;
             }
             else  _val1=_register[cur_dins._rs1];
             if(cur_dins._rd)  ++target[cur_dins._rd];
@@ -156,12 +158,14 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
             if(target[cur_dins._rs1]){
                 if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  return;
                 if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs1)  _val1=cur_EX._vrd;
-                else  _val1=cur_MEM._vrd;
+                else if(cur_MEM.is_accessed)  _val1=cur_MEM._vrd;
+                else  return;
 
                 if(target[cur_dins._rs2]){
                     if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  return;
                     if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  _val2=cur_EX._vrd;
-                    else  _val2=cur_MEM._vrd;
+                    else if(cur_MEM.is_accessed)  _val2=cur_MEM._vrd;
+                    else  return;
                 }
                 else  _val2=_register[cur_dins._rs2];
             }
@@ -171,7 +175,8 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
                 if(target[cur_dins._rs2]){
                     if(cur_EX.cur_type <= 15 && cur_EX.cur_type >= 11 && !cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  return;
                     if(!cur_EX.is_empty && cur_EX._rd == cur_dins._rs2)  _val2=cur_EX._vrd;
-                    else  _val2=cur_MEM._vrd;
+                    else if(cur_MEM.is_accessed)  _val2=cur_MEM._vrd;
+                    else  return;
                 }
                 else  _val2=_register[cur_dins._rs2];
             }
@@ -342,6 +347,7 @@ void MEM_register::operate_MEM(EX_register &cur_EX){
     _vrd=cur_EX._vrd;
     cur_pc=cur_EX.cur_pc;
     cur_period=1;
+    is_accessed=true;
     is_empty=false;
     cur_EX.is_empty=true;
 
@@ -350,44 +356,52 @@ void MEM_register::operate_MEM(EX_register &cur_EX){
             char tmp1;
             memcpy(&tmp1, _memory + (_val1 + cur_imm), sizeof(char));
             _vrd=uint(tmp1);
+            is_accessed=false;
             break;
 
         case LH:
             short tmp2;
             memcpy(&tmp2, _memory + (_val1 + cur_imm), sizeof(short));
             _vrd=uint(tmp2);
+            is_accessed=false;
             break;
 
         case LW:
             memcpy(&_vrd, _memory + (_val1 + cur_imm), sizeof(uint));
+            is_accessed=false;
             break;
 
         case LBU:
             unsigned char tmp3;
             memcpy(&tmp3, _memory + (_val1 + cur_imm), sizeof(unsigned char));
             _vrd=uint(tmp3);
+            is_accessed=false;
             break;
 
         case LHU:
             unsigned short tmp4;
             memcpy(&tmp4, _memory + (_val1 + cur_imm), sizeof(unsigned short));
             _vrd=uint(tmp4);
+            is_accessed=false;
             break;
 
         case SB:
             char tmp5;
             tmp5=_val2;
             memcpy(_memory + (_val1 + cur_imm), &tmp5, sizeof(char));
+            is_accessed=false;
             break;
 
         case SH:
             short tmp6;
             tmp6=_val2;
             memcpy(_memory + (_val1 + cur_imm), &tmp6, sizeof(short));
+            is_accessed=false;
             break;
 
         case SW:
             memcpy(_memory + (_val1 + cur_imm), &_val2, sizeof(uint));
+            is_accessed=false;
             break;
     }
 
@@ -402,6 +416,7 @@ void MEM_register::operate_WB(){
         case SB:  case SH:  case SW:
             if(cur_period!=3){
                 ++cur_period;
+                if(cur_period==3) is_accessed=true;
                 return;
             }
     }
