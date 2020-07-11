@@ -196,12 +196,19 @@ void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
 
     //banche predict(2-bit)
     if(cur_dins._format>=28 && cur_dins._format<=33){
-        if(app_time[hash_value]==8 && (PHT[hash_value][BHT[hash_value]]&2))
-            _pc=cur_pc + cur_dins._immediate, is_banched=true;
-        else if(total_app==16 && PHT_for_BHR[BHR]==3)
-            _pc=cur_pc + cur_dins._immediate, is_banched=true;
-        else if(cur_dins._immediate<0)
-            _pc=cur_pc + cur_dins._immediate, is_banched=true;
+        if(app_time[hash_value]<8){
+            //BTFN
+            if(cur_dins._immediate<0)
+                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+        }
+        else{
+            //local
+            if(PHT[hash_value][BHT[hash_value]]&2)
+                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+            //global
+            else if(total_app==16 && PHT_for_BHR[BHR]==3)
+                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+        }
         ++total_prediction;
     }
 
