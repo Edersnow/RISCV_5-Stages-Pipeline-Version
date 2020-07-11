@@ -43,11 +43,11 @@ int main()
     //simulate
     do{
         //printf("Cur period: %u\n", cnt++);
-        if(!cur_MEM.is_empty)  cur_MEM.operate_WB();
-        if(cur_MEM.is_empty && !cur_EX.is_empty)  cur_MEM.operate_MEM(cur_EX);
-        if(cur_EX.is_empty && !cur_ID.is_empty)  cur_EX.operate_EX(cur_ID, cur_IF);
-        if(cur_ID.is_empty && !cur_IF.is_empty)  cur_ID.operate_ID(cur_IF, cur_EX, cur_MEM);
-        if(cur_IF.is_empty && !is_end)  cur_IF.operate_IF();
+        if(!cur_MEM.is_empty)  cur_MEM.execute_WB();
+        if(cur_MEM.is_empty && !cur_EX.is_empty)  cur_MEM.execute_MEM(cur_EX);
+        if(cur_EX.is_empty && !cur_ID.is_empty)  cur_EX.execute_EX(cur_ID, cur_IF);
+        if(cur_ID.is_empty && !cur_IF.is_empty)  cur_ID.execute_ID(cur_IF, cur_EX, cur_MEM);
+        if(cur_IF.is_empty && !is_end)  cur_IF.execute_IF();
         //printf("-----------------------------------------\n");
     }while (!cur_IF.is_empty || !cur_ID.is_empty || !cur_EX.is_empty || !cur_MEM.is_empty);
 

@@ -17,7 +17,7 @@ struct IF_register{
     uint cur_pc;
 
     IF_register();
-    void operate_IF();
+    void execute_IF();
 };
 
 
@@ -36,7 +36,7 @@ struct ID_register{
     uint hash_value;
 
     ID_register();
-    void operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_register &cur_MEM);
+    void execute_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_register &cur_MEM);
 };
 
 
@@ -58,7 +58,7 @@ struct EX_register{
 
     EX_register();
     void judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID);
-    void operate_EX(ID_register &cur_ID, IF_register &cur_IF);
+    void execute_EX(ID_register &cur_ID, IF_register &cur_IF);
 };
 
 
@@ -81,8 +81,8 @@ struct MEM_register{
     uint cur_period;
 
     MEM_register();
-    void operate_MEM(EX_register &cur_EX);
-    void operate_WB();
+    void execute_MEM(EX_register &cur_EX);
+    void execute_WB();
 };
 
 
@@ -100,7 +100,7 @@ struct MEM_register{
 
 IF_register::IF_register() {is_empty=true;}
 
-void IF_register::operate_IF(){
+void IF_register::execute_IF(){
     is_empty=false;
     cur_pc=_pc;
     _pc+=4;
@@ -119,7 +119,7 @@ void IF_register::operate_IF(){
 
 ID_register::ID_register() {is_empty=true;}
 
-void ID_register::operate_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_register &cur_MEM){
+void ID_register::execute_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_register &cur_MEM){
     if(cur_IF.cur_instruction == 0x0ff00513){
         is_end=true;
         cur_IF.is_empty=true;
@@ -272,7 +272,7 @@ void EX_register::judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID){
     }
 }
 
-void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
+void EX_register::execute_EX(ID_register &cur_ID, IF_register &cur_IF){
     cur_type=cur_ID.cur_dins._format;
     cur_imm=cur_ID.cur_dins._immediate;
     _val1=cur_ID._val1;
@@ -338,7 +338,7 @@ void EX_register::operate_EX(ID_register &cur_ID, IF_register &cur_IF){
 
 MEM_register::MEM_register() {is_empty=true; cur_period=0;}
 
-void MEM_register::operate_MEM(EX_register &cur_EX){
+void MEM_register::execute_MEM(EX_register &cur_EX){
     cur_type=cur_EX.cur_type;
     cur_imm=cur_EX.cur_imm;
     _val1=cur_EX._val1;
@@ -410,7 +410,7 @@ void MEM_register::operate_MEM(EX_register &cur_EX){
     //printf("MEM: cur instruction %u\n", cur_type);
 }
 
-void MEM_register::operate_WB(){
+void MEM_register::execute_WB(){
     switch (cur_type){
         case LB:  case LH:  case LW:  case LBU:  case LHU:
         case SB:  case SH:  case SW:
