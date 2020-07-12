@@ -208,7 +208,7 @@ void ID_register::execute_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
         }
         else{
             //local
-            if(PHT[hash_value][BHT[hash_value]]&2)
+            if(PHT[hash_value][BHT[hash_value]]==3)
                 _pc=cur_pc + cur_dins._immediate, is_banched=true;
             //global
             else if(total_app==16 && PHT_for_BHR[BHR]==3)
