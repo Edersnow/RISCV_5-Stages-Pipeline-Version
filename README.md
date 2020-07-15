@@ -12,8 +12,8 @@ In the prediction part, I use two kinds of dynamic predictors (local predictor a
 
 The following table lists some of the prediction results (skip some tiny tests):
 
-|Test|Correction/Total|Accuracy|
-|:--:|:--------------:|-------:|
+|Test|Correct/Total|Accuracy|
+|:--:|:-----------:|-------:|
 |basicopt1|154026/155139|99.28%|
 |bulgarian|65074/71493|91.02%|
 |hanoi|16747/17457|95.93%|
