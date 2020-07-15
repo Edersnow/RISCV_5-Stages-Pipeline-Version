@@ -22,7 +22,6 @@ bool is_end;
 
 
 //prediction part
-//BTFN
 uint app_time[64];
 uint total_app;
 
