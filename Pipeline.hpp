@@ -68,12 +68,9 @@ struct EX_register{
 /***                                                               ***/
 
 struct MEM_register{
-
     bool is_empty;
     bool is_accessed;
     typeT cur_type;
-    uint cur_imm;
-    uint _val1;
     uint _val2;
     uint _rd;
     uint _vrd;
@@ -322,6 +319,12 @@ void EX_register::execute_EX(ID_register &cur_ID, IF_register &cur_IF){
 
         //PART UI
         case JAL:  _vrd = cur_pc + 4; break;
+
+        //PART L/S
+        case LB:  case LH:  case LW:  case LBU:  case LHU:
+        case SB:  case SH:  case SW:
+            _vrd = _val1 + cur_imm;
+            break;
     }
 
 
@@ -340,12 +343,9 @@ MEM_register::MEM_register() {is_empty=true; cur_period=0;}
 
 void MEM_register::execute_MEM(EX_register &cur_EX){
     cur_type=cur_EX.cur_type;
-    cur_imm=cur_EX.cur_imm;
-    _val1=cur_EX._val1;
     _val2=cur_EX._val2;
     _rd=cur_EX._rd;
     _vrd=cur_EX._vrd;
-    cur_pc=cur_EX.cur_pc;
     cur_period=1;
     is_accessed=true;
     is_empty=false;
@@ -354,33 +354,33 @@ void MEM_register::execute_MEM(EX_register &cur_EX){
     switch (cur_type){
         case LB:
             char tmp1;
-            memcpy(&tmp1, _memory + (_val1 + cur_imm), sizeof(char));
+            memcpy(&tmp1, _memory + _vrd, sizeof(char));
             _vrd=uint(tmp1);
             is_accessed=false;
             break;
 
         case LH:
             short tmp2;
-            memcpy(&tmp2, _memory + (_val1 + cur_imm), sizeof(short));
+            memcpy(&tmp2, _memory + _vrd, sizeof(short));
             _vrd=uint(tmp2);
             is_accessed=false;
             break;
 
         case LW:
-            memcpy(&_vrd, _memory + (_val1 + cur_imm), sizeof(uint));
+            memcpy(&_vrd, _memory + _vrd, sizeof(uint));
             is_accessed=false;
             break;
 
         case LBU:
             unsigned char tmp3;
-            memcpy(&tmp3, _memory + (_val1 + cur_imm), sizeof(unsigned char));
+            memcpy(&tmp3, _memory + _vrd, sizeof(unsigned char));
             _vrd=uint(tmp3);
             is_accessed=false;
             break;
 
         case LHU:
             unsigned short tmp4;
-            memcpy(&tmp4, _memory + (_val1 + cur_imm), sizeof(unsigned short));
+            memcpy(&tmp4, _memory + _vrd, sizeof(unsigned short));
             _vrd=uint(tmp4);
             is_accessed=false;
             break;
@@ -388,19 +388,19 @@ void MEM_register::execute_MEM(EX_register &cur_EX){
         case SB:
             char tmp5;
             tmp5=_val2;
-            memcpy(_memory + (_val1 + cur_imm), &tmp5, sizeof(char));
+            memcpy(_memory + _vrd, &tmp5, sizeof(char));
             is_accessed=false;
             break;
 
         case SH:
             short tmp6;
             tmp6=_val2;
-            memcpy(_memory + (_val1 + cur_imm), &tmp6, sizeof(short));
+            memcpy(_memory + _vrd, &tmp6, sizeof(short));
             is_accessed=false;
             break;
 
         case SW:
-            memcpy(_memory + (_val1 + cur_imm), &_val2, sizeof(uint));
+            memcpy(_memory + _vrd, &_val2, sizeof(uint));
             is_accessed=false;
             break;
     }
