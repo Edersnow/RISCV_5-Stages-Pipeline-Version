@@ -28,7 +28,7 @@ struct IF_register{
 
 struct ID_register{
     bool is_empty;
-    bool is_banched;
+    bool is_taken;
     instruction_decoder cur_dins;
     uint _val1;
     uint _val2;
@@ -192,7 +192,7 @@ void ID_register::execute_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
     if(cur_dins._rs2==0)  _val2=0;
     cur_pc=cur_IF.cur_pc;
     hash_value=(cur_pc>>2)&63;
-    is_banched=false;
+    is_taken=false;
 
 
 
@@ -201,15 +201,15 @@ void ID_register::execute_ID(IF_register &cur_IF, EX_register &cur_EX, MEM_regis
         if(app_time[hash_value]<8){
             //BTFN
             if(cur_dins._immediate<0)
-                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+                _pc=cur_pc + cur_dins._immediate, is_taken=true;
         }
         else{
             //local
             if(PHT[hash_value][BHT[hash_value]]==3)
-                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+                _pc=cur_pc + cur_dins._immediate, is_taken=true;
             //global
             else if(total_app==16 && PHT_for_BHR[BHR]==3)
-                _pc=cur_pc + cur_dins._immediate, is_banched=true;
+                _pc=cur_pc + cur_dins._immediate, is_taken=true;
         }
         ++total_prediction;
     }
@@ -246,7 +246,7 @@ void EX_register::judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID){
         BHR=(BHR<<1)&65535;
         BHR|=1;
 
-        if(cur_ID.is_banched)  ++correct_prediction;
+        if(cur_ID.is_taken)  ++correct_prediction;
         else{
             cur_IF.is_empty=true;
             _pc=cur_pc+cur_imm;
@@ -261,7 +261,7 @@ void EX_register::judge_SB(bool res, IF_register &cur_IF, ID_register &cur_ID){
         BHT[hash_value]=(BHT[hash_value]<<1)&255;
         BHR=(BHR<<1)&65535;
 
-        if(cur_ID.is_banched){
+        if(cur_ID.is_taken){
             cur_IF.is_empty=true;
             _pc=cur_pc+4;
         }
